@@ -15,12 +15,15 @@ body {
   margin: 0 100px;
 }
 
-main {
-  border: 5px solid green;
+/* CANVAS */
+#signature-pad {
+  border: 2px solid #c1c1c1;
+  border-radius: 4px;
 }
 
 /* BUTTONS */
 .signature-options {
+  margin: 3rem 0;
   display: flex;
   gap: .5rem;
   justify-content: center;
@@ -31,4 +34,5 @@ main {
   text-transform: uppercase;
   font-weight: 600;
   padding: .5rem 1rem;
+  border-radius: 4px;
 }
