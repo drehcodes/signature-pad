@@ -12,13 +12,11 @@ body {
 
 body {
   font-size: 16px;
-  margin: 0 100px;
 }
 
 /* CANVAS */
 #signature-pad {
   border: 2px solid #c1c1c1;
-  border-radius: 4px;
 }
 
 /* BUTTONS */
