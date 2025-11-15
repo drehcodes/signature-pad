@@ -2,10 +2,10 @@ const canvas = document.querySelector('#signature-pad');
 const ctx = canvas.getContext('2d');
 
 canvas.width = window.innerWidth;
-canvas.heigth = window.innerHeight;
-ctx.lineJoin = 'round'
-ctx.lineCap = 'round'
-ctx.lineWidth = 10;
+canvas.height = window.innerHeight;
+ctx.lineJoin = 'round';
+ctx.lineCap = 'round';
+ctx.lineWidth = 6;
 
 let isDrawing = false;
 let lastX = 0;
@@ -21,19 +21,16 @@ function draw(e) {
   ctx.beginPath();
   ctx.strokeStyle = '#111';
   ctx.moveTo(lastX, lastY) // Start from
-  ctx.quadraticCurveTo(e.offsetX, e.offsetY, midX, midY); // Move to
+  ctx.quadraticCurveTo(midX, midY, e.offsetX, e.offsetY); // Move to
   ctx.stroke();
   [lastX, lastY] = [e.offsetX, e.offsetY]
 
-  if (ctx.lineWidth >= 10 || ctx.lineWidth <= 1) {
+  if (ctx.lineWidth >= 6 || ctx.lineWidth <= 2) {
     direction = !direction;
   }
 
-  if (direction) {
-    ctx.lineWidth++;
-  } else {
-    ctx.lineWidth--;
-  }
+  ctx.lineWidth += direction ? 0.1 : -0.1;
+
 }
 
 canvas.addEventListener('mousedown', (e) => {
