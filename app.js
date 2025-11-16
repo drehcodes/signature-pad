@@ -1,3 +1,5 @@
+const clearBtn = document.querySelector('#clear');
+
 const canvas = document.querySelector('#signature-pad');
 const ctx = canvas.getContext('2d');
 
@@ -39,6 +41,10 @@ function draw(e) {
 
 }
 
+function clearSignature() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
+
 canvas.addEventListener('mousedown', (e) => {
   isDrawing = true;
   last = {x: e.offsetX, y: e.offsetY};
@@ -48,3 +54,5 @@ canvas.addEventListener('mousedown', (e) => {
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', () => isDrawing = false);
 canvas.addEventListener('mouseout', () => isDrawing = false);
+
+clearBtn.addEventListener('click', clearSignature);

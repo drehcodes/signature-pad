@@ -21,6 +21,8 @@ body {
 
 /* BUTTONS */
 .signature-options {
+  position: sticky;
+  bottom: 20%;
   margin: 3rem 0;
   display: flex;
   gap: .5rem;
