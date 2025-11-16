@@ -30,6 +30,21 @@ header img {
   transform: translateX(-50%);
 }
 
+header .logo {
+  font-family: 'DN Mono', sans-serif;
+  font-weight: 400;
+}
+
+header h1 {
+  font-family: 'Calligraffitti', sans-serif;
+  font-weight: 300;
+  color: #262626;
+  width: 300px;
+  text-align: center;
+  font-size: 2.3rem;
+  transform: rotate(-2deg);
+}
+
 .header-info {
   display: flex;
   flex-direction: column;
@@ -40,6 +55,7 @@ header img {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  mix-blend-mode: color-burn;
   z-index: 2;
 }
 
