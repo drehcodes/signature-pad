@@ -95,19 +95,26 @@ header h1 {
       0 5px 5px rgba(0, 0, 0, 0.09),
       0 1px 3px rgba(0, 0, 0, 0.1),
       0 2px 8px rgba(255, 255, 255, .3) inset;
-}
-
-#save, 
-#clear {
-  background-color: #D7D7D7;
-  color: #262626;
   transition: all 0.3s;
 }
 
-#save:hover,
+#clear {
+  background-color: #D7D7D7;
+  color: #262626;
+}
+
+#save {
+  background-color: #262626;
+  color: white;
+}
+
 #clear:hover {
   background-color: #262626;
   color: white;
-  box-shadow: none;
-  
+  transform: translateY(-2px);
+}
+
+#save:hover {
+  background-color: #404040;
+  transform: translateY(-2px);
 }
