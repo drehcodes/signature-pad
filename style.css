@@ -39,4 +39,28 @@ body {
   font-weight: 600;
   padding: .5rem 1rem;
   border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow:
+      0 34px 10px rgba(0, 0, 0, 0),
+      0 22px 9px rgba(0, 0, 0, 0.01),
+      0 12px 7px rgba(0, 0, 0, 0.05),
+      0 5px 5px rgba(0, 0, 0, 0.09),
+      0 1px 3px rgba(0, 0, 0, 0.1),
+      0 2px 8px rgba(255, 255, 255, .3) inset;
+}
+
+#save, 
+#clear {
+  background-color: #D7D7D7;
+  color: #262626;
+  transition: all 0.3s;
+}
+
+#save:hover,
+#clear:hover {
+  background-color: #262626;
+  color: white;
+  box-shadow: none;
+  
 }
