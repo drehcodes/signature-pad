@@ -3,8 +3,14 @@ const clearBtn = document.querySelector('#clear');
 const canvas = document.querySelector('#signature-pad');
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const dpr = window.devicePixelRatio || 1;
+const rect = canvas.getBoundingClientRect(); // Get the CSS size of the wrapper/canvas
+
+// Set internal resolution
+canvas.width  = rect.width * dpr;
+canvas.height = rect.height * dpr;
+
+ctx.scale(dpr, dpr); // Scale drawing so you can use rect-based coords
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 ctx.lineWidth = 4;
