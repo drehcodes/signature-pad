@@ -33,9 +33,10 @@ body {
 }
 
 .btn {
-  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-family: 'DM Mono', sans-serif;
   text-transform: uppercase;
+  letter-spacing: -2%;
   font-weight: 600;
   padding: .5rem 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
 }
