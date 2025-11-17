@@ -19,6 +19,10 @@ ctx.lineCap = 'round';
 // get user choice of width in slider
 let baseWidth = Number(widthInput.value);
 
+let wobblePhase = 0;
+const wobbleSpeed = 0.2;
+const wobbleAmpFactor = 0.2;
+
 let isDrawing = false;
 let last = { x: 0, y: 0 };      // last real mouse point
 let lastMid = { x: 0, y: 0 };   // last midpoint
@@ -42,10 +46,15 @@ function draw(e) {
     y: (last.y + y) / 2,
   };
 
+  //Controll width
+  wobblePhase += wobbleSpeed; // advance phase a bit every segment
+  const maxWobble = baseWidth * wobbleAmpFactor; // e.g. 25% of base
+  const wobbleOffset = Math.sin(wobblePhase) * maxWobble;
+  const finalWidth = baseWidth + wobbleOffset;
+  ctx.lineWidth = Math.max(0.5, finalWidth);
+
   ctx.beginPath();
   ctx.strokeStyle = '#111';
-  // Use the current baseWidth chosen by the user
-  ctx.lineWidth = baseWidth;
   // Start at the end of the previous curve
   ctx.moveTo(lastMid.x, lastMid.y);
   // Smooth curve: bends through `last`, ends at `mid`
@@ -113,6 +122,8 @@ canvas.addEventListener('mousedown', (e) => {
   // Initialize smoothing state
   last = { x, y };
   lastMid = { x, y };
+
+  wobblePhase = 0;
 });
 
 canvas.addEventListener('mousemove', draw);
