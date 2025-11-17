@@ -55,6 +55,7 @@ nav .logo {
 
 /* BUTTONS */
 .signature-options {
+  font-family: 'DM Mono', sans-serif;
   position: sticky;
   display: flex;
   flex-direction: column;
@@ -71,7 +72,6 @@ nav .logo {
 }
 
 .btn {
-  font-family: 'DM Mono', sans-serif;
   text-transform: uppercase;
   letter-spacing: -2%;
   font-weight: 600;
@@ -131,4 +131,12 @@ nav .logo {
 #save:hover {
   background-color: #404040;
   transform: translateY(-2px);
+}
+
+/*  Controls  */
+.controls {
+  display: flex;
+  align-items: end;
+  gap: .5rem;
+  text-transform: uppercase;
 }

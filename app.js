@@ -1,64 +1,151 @@
 const clearBtn = document.querySelector('#clear');
+const widthInput = document.querySelector('#width');
 
 const canvas = document.querySelector('#signature-pad');
 const ctx = canvas.getContext('2d');
 
+//make lines sharp
 const dpr = window.devicePixelRatio || 1;
-const rect = canvas.getBoundingClientRect(); // Get the CSS size of the wrapper/canvas
+const rect = canvas.getBoundingClientRect();
 
-// Set internal resolution
-canvas.width  = rect.width * dpr;
+//improve retina screens
+canvas.width = rect.width * dpr;
 canvas.height = rect.height * dpr;
 
-ctx.scale(dpr, dpr); // Scale drawing so you can use rect-based coords
+// Draw in CSS coordinates, scaled to real pixels
+ctx.scale(dpr, dpr);
+
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
-ctx.lineWidth = 4;
+
+// get user choice of width in slider
+let baseWidth = Number(widthInput.value);
 
 let isDrawing = false;
-let last = {x: 0, y: 0}; //track current mouse
-let lastMid = {x: 0, y: 0}; //track end of the previous curve
-let direction = true;
+let last = { x: 0, y: 0 };      // last real mouse point
+let lastMid = { x: 0, y: 0 };   // last midpoint
+
+// Track strokes paths
+let strokes = [];        // all finished strokes
+let currentStroke = [];  // stroke being drawn right now
 
 function draw(e) {
   if (!isDrawing) return;
 
-  // midpoint between the last real point and the current point
-  // gets end of the curve
+  const x = e.offsetX;
+  const y = e.offsetY;
+
+  // Save this point into the current stroke so we can redraw later
+  currentStroke.push({ x, y });
+
+  // Midpoint between last real point and current real point
   const mid = {
-    x: (last.x + e.offsetX) / 2,
-    y: (last.y + e.offsetY) / 2,
+    x: (last.x + x) / 2,
+    y: (last.y + y) / 2,
   };
 
   ctx.beginPath();
   ctx.strokeStyle = '#111';
-  ctx.moveTo(lastMid.x, lastMid.y); // Start drawing from the previous mid point / curve
-  ctx.quadraticCurveTo(last.x, last.y, mid.x, mid.y); // Move to creating smooth arc
+  // Use the current baseWidth chosen by the user
+  ctx.lineWidth = baseWidth;
+  // Start at the end of the previous curve
+  ctx.moveTo(lastMid.x, lastMid.y);
+  // Smooth curve: bends through `last`, ends at `mid`
+  ctx.quadraticCurveTo(last.x, last.y, mid.x, mid.y);
   ctx.stroke();
 
-  last = {x: e.offsetX, y: e.offsetY}; // Update the last real mouse position to the current one
-  lastMid = mid; // Update the last midpoint to the current one
+  // Update smoothing state for the next frame
+  last = { x, y };
+  lastMid = mid;
+}
 
-  if (ctx.lineWidth >= 6 || ctx.lineWidth <= 2) {
-    direction = !direction;
+// Redraw all strokes (used when width changes)
+function redrawAllStrokes() {
+  // Clear entire canvas (use internal resolution)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = baseWidth; // use current slider value
+
+  // Helper to replay one stroke with the same smoothing logic
+  const replayStroke = (stroke) => {
+    if (stroke.length < 2) return;
+
+    // Reset smoothing state for this stroke
+    let lastPoint = stroke[0];
+    let lastMidPoint = stroke[0];
+
+    for (let i = 1; i < stroke.length; i++) {
+      const p = stroke[i];
+
+      const mid = {
+        x: (lastPoint.x + p.x) / 2,
+        y: (lastPoint.y + p.y) / 2,
+      };
+
+      ctx.beginPath();
+      ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
+      ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
+      ctx.stroke();
+
+      lastPoint = p;
+      lastMidPoint = mid;
+    }
+  };
+
+  // Redraw all finished strokes
+  strokes.forEach(replayStroke);
+
+  if (currentStroke.length > 1) {
+    replayStroke(currentStroke);
   }
-
-  ctx.lineWidth += direction ? 0.1 : -0.1;
-
 }
 
-function clearSignature() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-}
-
+// Events
 canvas.addEventListener('mousedown', (e) => {
   isDrawing = true;
-  last = {x: e.offsetX, y: e.offsetY};
-  lastMid = {x: e.offsetX, y: e.offsetY};
-})
+
+  const x = e.offsetX;
+  const y = e.offsetY;
+
+  // Start a new stroke
+  currentStroke = [];
+  currentStroke.push({ x, y });
+
+  // Initialize smoothing state
+  last = { x, y };
+  lastMid = { x, y };
+});
 
 canvas.addEventListener('mousemove', draw);
-canvas.addEventListener('mouseup', () => isDrawing = false);
-canvas.addEventListener('mouseout', () => isDrawing = false);
+
+function finishStroke() {
+  if (!isDrawing) return;
+  isDrawing = false;
+
+  // Save the stroke if it has more than 1 point
+  if (currentStroke.length > 1) {
+    strokes.push(currentStroke);
+  }
+  currentStroke = [];
+}
+
+canvas.addEventListener('mouseup', finishStroke);
+canvas.addEventListener('mouseout', finishStroke);
+
+function clearSignature() {
+  strokes = [];
+  currentStroke = [];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
 clearBtn.addEventListener('click', clearSignature);
+
+function handleWidthChange() {
+  baseWidth = Number(this.value);
+  // When width changes, redraw everything using the new width
+  redrawAllStrokes();
+}
+
+widthInput.addEventListener('input', handleWidthChange);
+widthInput.addEventListener('change', handleWidthChange);
