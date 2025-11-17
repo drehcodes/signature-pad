@@ -1,5 +1,6 @@
 const clearBtn = document.querySelector('#clear');
 const widthInput = document.querySelector('#width');
+const toggleBtn = document.querySelector('.dark-ligh-mode');
 
 const canvas = document.querySelector('#signature-pad');
 const ctx = canvas.getContext('2d');
@@ -54,7 +55,7 @@ function draw(e) {
   ctx.lineWidth = Math.max(0.5, finalWidth);
 
   ctx.beginPath();
-  ctx.strokeStyle = '#111';
+  
   // Start at the end of the previous curve
   ctx.moveTo(lastMid.x, lastMid.y);
   // Smooth curve: bends through `last`, ends at `mid`
@@ -71,7 +72,7 @@ function redrawAllStrokes() {
   // Clear entire canvas (use internal resolution)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#111';
+  
   ctx.lineWidth = baseWidth; // use current slider value
 
   // Helper to replay one stroke with the same smoothing logic
@@ -108,6 +109,29 @@ function redrawAllStrokes() {
   }
 }
 
+function finishStroke() {
+  if (!isDrawing) return;
+  isDrawing = false;
+
+  // Save the stroke if it has more than 1 point
+  if (currentStroke.length > 1) {
+    strokes.push(currentStroke);
+  }
+  currentStroke = [];
+}
+
+function clearSignature() {
+  strokes = [];
+  currentStroke = [];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function handleWidthChange() {
+  baseWidth = Number(this.value);
+  // When width changes, redraw everything using the new width
+  redrawAllStrokes();
+}
+
 // Events
 canvas.addEventListener('mousedown', (e) => {
   isDrawing = true;
@@ -126,35 +150,35 @@ canvas.addEventListener('mousedown', (e) => {
   wobblePhase = 0;
 });
 
-canvas.addEventListener('mousemove', draw);
+function toggleLightDarkMode(e) {
+  const icon = e.target.closest('i').classList;
+  const headline = document.querySelector('.headline');
 
-function finishStroke() {
-  if (!isDrawing) return;
-  isDrawing = false;
+  icon.contains('fa-moon') 
+  ? icon.replace('fa-moon', 'fa-sun') 
+  : icon.replace('fa-sun', 'fa-moon');
 
-  // Save the stroke if it has more than 1 point
-  if (currentStroke.length > 1) {
-    strokes.push(currentStroke);
+  if (icon.contains('fa-sun')) {
+    document.body.style.backgroundColor = '#262626';
+    document.body.style.color = '#F4F4F4';
+    headline.style.color = '#f4f4f4';
+    ctx.strokeStyle = '#f5f5f5ff';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
-  currentStroke = [];
+
+  if (icon.contains('fa-moon')) {
+    document.body.style.backgroundColor = '#F4F4F4';
+    document.body.style.color = '#262626';
+    headline.style.color = '#262626';
+    ctx.strokeStyle = '#111';
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
+canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', finishStroke);
 canvas.addEventListener('mouseout', finishStroke);
-
-function clearSignature() {
-  strokes = [];
-  currentStroke = [];
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
 clearBtn.addEventListener('click', clearSignature);
-
-function handleWidthChange() {
-  baseWidth = Number(this.value);
-  // When width changes, redraw everything using the new width
-  redrawAllStrokes();
-}
-
 widthInput.addEventListener('input', handleWidthChange);
 widthInput.addEventListener('change', handleWidthChange);
+toggleBtn.addEventListener('click', toggleLightDarkMode)
