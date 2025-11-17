@@ -4,17 +4,14 @@ const widthInput = document.querySelector('#width');
 const canvas = document.querySelector('#signature-pad');
 const ctx = canvas.getContext('2d');
 
-//make lines sharp
-const dpr = window.devicePixelRatio || 1;
-const rect = canvas.getBoundingClientRect();
+const dpr = window.devicePixelRatio || 1; //make lines sharp
+const rect = canvas.getBoundingClientRect(); //fits into user screen size
 
 //improve retina screens
 canvas.width = rect.width * dpr;
 canvas.height = rect.height * dpr;
 
-// Draw in CSS coordinates, scaled to real pixels
 ctx.scale(dpr, dpr);
-
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 
