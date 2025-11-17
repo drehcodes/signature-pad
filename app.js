@@ -12,13 +12,12 @@ canvas.width = rect.width * dpr;
 canvas.height = rect.height * dpr;
 
 ctx.scale(dpr, dpr);
+
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 
 // get user choice of width in slider
 let baseWidth = Number(widthInput.value);
-let wobble = 0;
-let wobbleDirection = 1;
 
 let isDrawing = false;
 let last = { x: 0, y: 0 };      // last real mouse point
@@ -43,16 +42,6 @@ function draw(e) {
     y: (last.y + y) / 2,
   };
 
-  //Wobble
-  const maxWobble = baseWidth * 0.20;
-  wobble += wobbleDirection * 0.05;
-
-  if (wobble > maxWobble || wobble < -maxWobble) {
-    wobbleDirection *= -1;
-  }
-
-  ctx.lineWidth = baseWidth + wobble;
-
   ctx.beginPath();
   ctx.strokeStyle = '#111';
   // Use the current baseWidth chosen by the user
@@ -70,12 +59,17 @@ function draw(e) {
 
 // Redraw all strokes (used when width changes)
 function redrawAllStrokes() {
+  // Clear entire canvas (use internal resolution)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Replay each stroke
-  for (const stroke of strokes) {
-    if (stroke.length < 2) continue;
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = baseWidth; // use current slider value
 
+  // Helper to replay one stroke with the same smoothing logic
+  const replayStroke = (stroke) => {
+    if (stroke.length < 2) return;
+
+    // Reset smoothing state for this stroke
     let lastPoint = stroke[0];
     let lastMidPoint = stroke[0];
 
@@ -84,13 +78,10 @@ function redrawAllStrokes() {
 
       const mid = {
         x: (lastPoint.x + p.x) / 2,
-        y: (lastPoint.y + p.y) / 2
+        y: (lastPoint.y + p.y) / 2,
       };
 
       ctx.beginPath();
-      ctx.strokeStyle = '#111';
-      ctx.lineWidth = baseWidth;    // no wobble during redraw
-
       ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
       ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, mid.x, mid.y);
       ctx.stroke();
@@ -98,9 +89,15 @@ function redrawAllStrokes() {
       lastPoint = p;
       lastMidPoint = mid;
     }
+  };
+
+  // Redraw all finished strokes
+  strokes.forEach(replayStroke);
+
+  if (currentStroke.length > 1) {
+    replayStroke(currentStroke);
   }
 }
-
 
 // Events
 canvas.addEventListener('mousedown', (e) => {
