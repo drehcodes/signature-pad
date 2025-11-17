@@ -1,4 +1,6 @@
 const clearBtn = document.querySelector('#clear');
+const saveBtn = document.querySelector('#save');
+
 const widthInput = document.querySelector('#width');
 const toggleBtn = document.querySelector('.dark-ligh-mode');
 
@@ -16,13 +18,14 @@ ctx.scale(dpr, dpr);
 
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
+let currentStrokeColor = '#111';
 
 // get user choice of width in slider
 let baseWidth = Number(widthInput.value);
 
 let wobblePhase = 0;
-const wobbleSpeed = 0.2;
-const wobbleAmpFactor = 0.2;
+const wobbleSpeed = 0.3;
+const wobbleAmpFactor = 0.3;
 
 let isDrawing = false;
 let last = { x: 0, y: 0 };      // last real mouse point
@@ -55,7 +58,7 @@ function draw(e) {
   ctx.lineWidth = Math.max(0.5, finalWidth);
 
   ctx.beginPath();
-  
+  ctx.strokeStyle = currentStrokeColor;
   // Start at the end of the previous curve
   ctx.moveTo(lastMid.x, lastMid.y);
   // Smooth curve: bends through `last`, ends at `mid`
@@ -72,7 +75,7 @@ function redrawAllStrokes() {
   // Clear entire canvas (use internal resolution)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  
+  ctx.strokeStyle = currentStrokeColor;
   ctx.lineWidth = baseWidth; // use current slider value
 
   // Helper to replay one stroke with the same smoothing logic
@@ -132,6 +135,15 @@ function handleWidthChange() {
   redrawAllStrokes();
 }
 
+function savePNG() {
+  const dataURL = canvas.toDataURL("image/png");
+
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = "signature.png"; // file name
+  a.click();
+}
+
 // Events
 canvas.addEventListener('mousedown', (e) => {
   isDrawing = true;
@@ -151,27 +163,32 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 function toggleLightDarkMode(e) {
-  const icon = e.target.closest('i').classList;
+  const button = e.currentTarget;
+  const icon = button.querySelector('i').classList;
   const headline = document.querySelector('.headline');
 
   icon.contains('fa-moon') 
-  ? icon.replace('fa-moon', 'fa-sun') 
-  : icon.replace('fa-sun', 'fa-moon');
+    ? icon.replace('fa-moon', 'fa-sun') 
+    : icon.replace('fa-sun', 'fa-moon');
 
   if (icon.contains('fa-sun')) {
+    // DARK MODE
     document.body.style.backgroundColor = '#262626';
     document.body.style.color = '#F4F4F4';
-    headline.style.color = '#f4f4f4';
-    ctx.strokeStyle = '#f5f5f5ff';
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    headline.style.color = '#F4F4F4';
+
+    currentStrokeColor = '#f4f4f4'; // new stroke color
+    redrawAllStrokes();             // redraw everything with new color
   }
 
   if (icon.contains('fa-moon')) {
+    // LIGHT MODE
     document.body.style.backgroundColor = '#F4F4F4';
     document.body.style.color = '#262626';
     headline.style.color = '#262626';
-    ctx.strokeStyle = '#111';
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    currentStrokeColor = '#111';    // new stroke color
+    redrawAllStrokes();             // redraw everything with new color
   }
 }
 
@@ -182,3 +199,4 @@ clearBtn.addEventListener('click', clearSignature);
 widthInput.addEventListener('input', handleWidthChange);
 widthInput.addEventListener('change', handleWidthChange);
 toggleBtn.addEventListener('click', toggleLightDarkMode)
+saveBtn.addEventListener('click', savePNG);
